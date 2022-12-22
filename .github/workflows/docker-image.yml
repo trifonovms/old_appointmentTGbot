@@ -17,6 +17,5 @@ jobs:
         username: ${{ secrets.SERVICE_PRINCIPAL }}
         password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
     - run: |
-        docker build . -t azappmanregistry.azurecr.io/tgbot:${{ github.sha }}
-        docker push azappmanregistry.azurecr.io/tgbot:${{ github.sha }}
+        docker build . -t azappmanregistry.azurecr.io/tgbot:latest
         docker push azappmanregistry.azurecr.io/tgbot:latest
