@@ -7,4 +7,6 @@ RUN npm i typescript --save-dev
 RUN npm i --save-dev @types/debug
 RUN npx tsc
 ENV NODE_ENV=production
+EXPOSE 80
+USER node
 CMD node /usr/src/app/dist/index.js
