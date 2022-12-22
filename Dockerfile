@@ -6,4 +6,5 @@ RUN npm install
 RUN npm i typescript --save-dev
 RUN npm i --save-dev @types/debug
 RUN npx tsc
+ENV NODE_ENV=production
 CMD node /usr/src/app/dist/index.js
