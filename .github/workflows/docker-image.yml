@@ -12,15 +12,12 @@ jobs:
     steps:
       - name: ACR build
         id: acr
-        uses: azure/acr-build@v1
+        uses: azure/docker-login@v1
         with:
-          service_principal: ${{ secrets.service_principal }}
-          service_principal_password: ${{ secrets.service_principal_password }}
-          tenant: azappmanregistry
-          registry: azappmanregistry.azurecr.io
-          repository: tgbot
-          image: tgbot
-          folder: ./
-          dockerfile: Dockerfile
-          branch: main
-          build_args: '[{"arg_one":"value_one"}, {"arg_two":"value_two"}]'
+            login-server: azappmanregistry.azurecr.io
+            username: ${{ secrets.service_principal }}
+            password: ${{ secrets.service_principal_password }}
+      - name: Push
+        run: |
+          docker build . -t azappmanregistry.azurecr.io/tgbot:${{ github.sha }}
+          docker push azappmanregistry.azurecr.io/tgbot:${{ github.sha }}
