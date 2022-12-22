@@ -10,14 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: ACR build
-        id: acr
-        uses: azure/docker-login@v1
-        with:
-            login-server: azappmanregistry.azurecr.io
-            username: ${{ secrets.service_principal }}
-            password: ${{ secrets.service_principal_password }}
-      - name: Push
-        run: |
-          docker build . -f Dockerfile -t azappmanregistry.azurecr.io/tgbot:${{ github.sha }}
-          docker push azappmanregistry.azurecr.io/tgbot:${{ github.sha }}
+    - uses: actions/checkout@v2
+    - uses: azure/docker-login@v1
+      with:
+        login-server: mycontainer.azurecr.io
+        username: ${{ secrets.SERVICE_PRINCIPAL }}
+        password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
+    - run: |
+        docker build . -t azappmanregistry.azurecr.io/tgbot:${{ github.sha }}
+        docker push azappmanregistry.azurecr.io/tgbot:${{ github.sha }}     
