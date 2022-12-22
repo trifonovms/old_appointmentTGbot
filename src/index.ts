@@ -1,6 +1,11 @@
-import { Bot, InlineKeyboard, Context, session, SessionFlavor} from "grammy";
+import { Bot, InlineKeyboard, Context, session, SessionFlavor, webhookCallback} from "grammy";
 import {startQueueMessageHandler} from './azure-queue';
 import {addTGUser} from './azure-table';
+import express from "express";
+
+const app = express(); // or whatever you're using
+app.use(express.json()); // parse the JSON request body
+
 
 //Store bot screaming status
 let permit = false;
@@ -53,27 +58,6 @@ bot.callbackQuery(backButton, async (ctx) => {
    });
  });
 
-// //This handler processes next button on the menu
-// bot.callbackQuery(nextButton, async (ctx) => {
-//   //Update message content with corresponding menu section
-//   await ctx.editMessageText(secondMenu, {
-//     reply_markup: secondMenuMarkup,
-//     parse_mode: "HTML",
-//    });
-//  });
-
-// const BOT_DEVELOPER = 1374826521; // bot developer chat identifier
-
-// bot.use(async (ctx, next) => {
-//   // Modify context object here by setting the config.
-//   ctx.config = {
-//     botDeveloper: BOT_DEVELOPER,
-//     isDeveloper: ctx.from?.id === BOT_DEVELOPER,
-//   };
-//   // Run remaining handlers.
-//   await next();
-// });
-
 //This function would be added to the dispatcher as a handler for messages coming from the Bot API
 bot.on("message", async (ctx) => {
 
@@ -85,14 +69,8 @@ bot.on("message", async (ctx) => {
   };
   if(ctx.message.text === '/start'){
     await addTGUser(tgUser);
+    return ctx.reply(`Hi, ${tgUser.first_name}!`);
   }
-  // //Print to console
-  // await bot.api.sendMessage(1374826521, 'My test');
-  // console.log(
-  //   `${ctx.from.first_name} wrote ${
-  //     "text" in ctx.message ? ctx.message.text : ""
-  //   }`,
-  // );
 
   if (permit && ctx.message.text) {
     await ctx.reply(`Let's start to find permit. What's your zip code`, {
@@ -105,26 +83,33 @@ bot.on("message", async (ctx) => {
 });
 bot.command("start", (ctx) => ctx.reply("Welcome! Up and running."));
 
-
-const sendUserAlert = async (msgQueue:string)=>{
-  const obj = JSON.parse(msgQueue);
-  const text = `${obj.message} Link: ${obj.link}`;
-  await bot.api.sendMessage(1374826521, text);
-}
-// startQueueMessageHandler(sendUserAlert);
 //Start the Bot
-bot.start();
+// bot.start();
+// "express" is also used as default if no argument is given.
+const domain = process.env.DOMAIN ?? "tgbot--396j687.salmonsand-0d66399e.centralus.azurecontainerapps.io";
+app.post(`/${TOKEN_BOT}`, (req,res)=>{
+  console.log('webhookCallback');
+  webhookCallback(bot, "express")
+});
+app.get(`/health`, (req, res) => {
+  const data = {
+    uptime: process.uptime(),
+    message: 'Ok',
+    date: new Date()
+  }
+  res.status(200).send(data);
+});
+const server = app.listen(Number(80), async () => {
+  // Make sure it is `https` not `http`!
+  await bot.api.setWebhook(`https://${domain}/${TOKEN_BOT}`);
+});
 
+const gracefulShutdown = (myApp:any)=>{
+  console.log('SIGTERM signal received: closing HTTP server');
+  myApp.close(() => {
+    console.log('HTTP server closed')
+  });
+};
 
-
- /**
-     * Send POST to 'https://api.telegram.org/bot5942014704:AAEQ_SS7TtrEHBj8Pc_DBNVefgop_MpPpUc/sendMessage'
-{
-  method: "POST",
-  headers: {
-    "content-type": "application/json",
-    connection: "keep-alive",
-  },
-  body: "{\"chat_id\":1374826521,\"text\":\"My test\"}",
-}
-     */
+process.once("SIGINT", () => gracefulShutdown(server));
+process.once("SIGTERM", () => gracefulShutdown(server));
