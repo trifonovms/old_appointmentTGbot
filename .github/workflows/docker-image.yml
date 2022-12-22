@@ -1,0 +1,26 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ACR build
+        id: acr
+        uses: azure/acr-build@v1
+        with:
+          service_principal: ${{ secrets.service_principal }}
+          service_principal_password: ${{ secrets.service_principal_password }}
+          tenant: azappmanregistry
+          registry: azappmanregistry.azurecr.io
+          repository: tgbot
+          image: tgbot
+          folder: ./
+          dockerfile: Dockerfile
+          branch: main
+          build_args: '[{"arg_one":"value_one"}, {"arg_two":"value_two"}]'
