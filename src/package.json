@@ -1,0 +1,25 @@
+{
+    "name": "tg-bot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "TOKEN_BOT=5942900300:AAF-72Wyle4b4JwCeXNfx2y5feFr2BEeb9I ts-node ./index.ts",
+        "dev": "DEBUG=grammy* TOKEN_BOT=5942900300:AAF-72Wyle4b4JwCeXNfx2y5feFr2BEeb9I ts-node-dev ./index.ts",
+        "dev-azure": "ts-node-dev ./azure-queue.ts",
+        "dev-send": "ts-node-dev ./azure-queue-send.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@azure/data-tables": "^13.2.0",
+        "@azure/storage-queue": "^12.11.0",
+        "grammy": "^1.11.2"
+    },
+    "devDependencies": {
+        "ts-node": "^10.9.1",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^4.7.4"
+    }
+}
