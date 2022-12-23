@@ -99,7 +99,7 @@ app.get(`/health`, (req, res) => {
   }
   res.status(200).send(data);
 });
-const server = app.listen(Number(80), async () => {
+const server = app.listen(Number(8888), async () => {
   // Make sure it is `https` not `http`!
   await bot.api.setWebhook(`https://${domain}/${TOKEN_BOT}`);
 });

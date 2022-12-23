@@ -9,6 +9,6 @@ RUN npx tsc
 ENV NODE_ENV=production
 RUN apt-get install libcap2-bin
 RUN setcap cap_net_bind_service=+ep `readlink -f \`which node\``
-EXPOSE 80
+EXPOSE 8888
 USER node
 CMD node /usr/src/app/dist/index.js
